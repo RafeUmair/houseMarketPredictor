@@ -9,14 +9,16 @@ export const Navbar = () => {
         {/* House Logo */}
         <Link
           to="/"
-          className="flex items-center gap-2 text-lg font-semibold tracking-tight text-primary"
+          className="flex items-center gap-2 text-lg font-semibold tracking-tight group"
         >
           <img
             src={houseLogo}
             alt="Houser logo"
             className="h-10 w-10 object-contain border-0"
           />
-          <span>Houser</span>
+          <span className="text-primary">
+            Houser
+          </span>
         </Link>
 
         {/*Central Navigation */}
@@ -26,6 +28,9 @@ export const Navbar = () => {
           </a>
           <a href="#about" className="hover:text-primary transition">
             About
+          </a>
+          <a href="#valuation" className="hover:text-primary transition">
+            Valuation
           </a>
         </nav>
 

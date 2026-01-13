@@ -102,7 +102,42 @@
 }
 
 @utility fade-up {
-  animation: fade-up 0.6s ease-out both;
+  animation: fade-up 0.8s ease-out both;
+  opacity: 0;
+}
+
+@layer base {
+  .themed-button {
+    padding: 1rem 2rem;
+    border: 2px solid hsl(217 91% 60%);
+    color: hsl(217 91% 60%);
+    font-weight: 600;
+    border-radius: 0.5rem;
+    background: transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .themed-button:hover {
+    background: hsl(217 91% 60%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px hsl(217 91% 60% / 0.3);
+  }
+
+  .themed-button:active {
+    transform: translateY(0);
+  }
+
+  .home-title {
+    color: rgb(0, 0, 0);
+  }
+
+  .dark .home-title {
+    color: rgb(255, 255, 255);
+  }
 }
 
 #root {
