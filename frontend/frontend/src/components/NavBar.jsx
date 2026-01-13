@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import houseLogo from "@/assets/houseLogo.png";
+import { DarkModeToggle } from "./DarkModeToggle";
 
 export const Navbar = () => {
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-background border-b">
-      <div className="container h-14 flex items-center justify-between">
-
+      <div className="container h-14 flex items-center">
+        {/* House Logo */}
         <Link
           to="/"
           className="flex items-center gap-2 text-lg font-semibold tracking-tight text-primary"
@@ -18,7 +19,8 @@ export const Navbar = () => {
           <span>Houser</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm text-foreground">
+        {/*Central Navigation */}
+        <nav className="hidden md:flex items-center gap-6 text-sm text-foreground flex-1 justify-center">
           <a href="#home" className="hover:text-primary transition">
             Home
           </a>
@@ -26,6 +28,11 @@ export const Navbar = () => {
             About
           </a>
         </nav>
+
+        {/* DarkMode Toggle*/}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+        <DarkModeToggle />
+        </div>
       </div>
     </header>
   );
