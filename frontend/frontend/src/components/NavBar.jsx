@@ -26,11 +26,11 @@ export const Navbar = () => {
           <a href="#home" className="hover:text-primary transition">
             Home
           </a>
-          <a href="#about" className="hover:text-primary transition">
-            About
-          </a>
           <a href="#valuation" className="hover:text-primary transition">
             Valuation
+          </a>
+          <a href="#map" className="hover:text-primary transition">
+            Map
           </a>
         </nav>
 

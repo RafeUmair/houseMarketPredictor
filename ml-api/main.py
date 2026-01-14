@@ -8,16 +8,27 @@ from typing import Optional
 #Property class 
 class Property(BaseModel):
     Rooms: int
-    Distance_to_CBD: float
     Bathroom: int
     Car: int
     Landsize: float
-    Type_h: int  #House
-    Type_u: int  #Unit
-    Type_t: int  #Townhouse
+    Type_h: int
+    Type_u: int
+    Type_t: int
+    Suburb: str
 
 #Load model
 model = joblib.load('../ml/model/random_forest_model.joblib')
+
+# load dataset (for suburb -> distance lookup)
+housing_df = pd.read_csv('../ml/data/melbourne_housing.csv')
+housing_df['Suburb'] = housing_df['Suburb'].str.lower().str.strip()
+
+suburb_distance_map = (
+    housing_df
+    .groupby('Suburb')['Distance']
+    .mean()
+    .to_dict()
+)
 
 app = FastAPI()
 
@@ -37,7 +48,22 @@ def read_root():
 @app.post("/predictPrice")
 def predict_price(property: Property):
     #Convert input to DataFrame
-    data = pd.DataFrame([property.dict()])
+
+    suburb_key = property.Suburb.lower().strip()
+    distance_to_cbd = suburb_distance_map.get(suburb_key)
+
+    data = pd.DataFrame([{
+        "Rooms": property.Rooms,
+        "Bathroom": property.Bathroom,
+        "Car": property.Car,
+        "Landsize": property.Landsize,
+        "YearSold": 2026,
+        "YearsSinceSale": 0,
+        "Distance_to_CBD": distance_to_cbd,
+        "Type_h": property.Type_h,
+        "Type_u": property.Type_u,
+        "Type_t": property.Type_t
+    }])
     
     #Ensure all columns are present
     X_columns = model.feature_names_in_
