@@ -73,3 +73,10 @@ def predict_price(property: Property):
     predicted_price = model.predict(data)[0]
     
     return {"predicted_price": predicted_price}
+
+
+
+@app.get("/suburbs")
+def get_suburbs():
+    suburbs = list(suburb_distance_map.keys())
+    return {"suburbs": suburbs}

@@ -9,14 +9,14 @@ print("Model loaded successfully!")
 #Sample test property
 sample_df = pd.DataFrame([{
     'Rooms': 4,
-    'Distance_to_CBD': 53,
-    'Bathroom': 3,
-    'Car': 5,
-    'Landsize': 672,
+    'Distance_to_CBD': 28.5,
+    'Bathroom': 2,
+    'Car': 2,
+    'Landsize': 600,
     'YearSold': 2025,
     'YearsSinceSale': 1,
-    'Type_h': 1, 
-    'Type_u': 0,
+    'Type_h': 0, 
+    'Type_u': 1,
     'Type_t': 0
 }])
 
