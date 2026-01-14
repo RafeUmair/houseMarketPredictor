@@ -8,7 +8,30 @@ import numpy as np
 #load dataset
 df = pd.read_csv('data/melbourne_housing.csv')
 
-#drop missing values
+#Impute missing landsize for units and townhouses, based on average sizes by number of rooms
+def impute_landsize(row):
+    if pd.isna(row['Landsize']):
+        if row['Type'] == 'u':
+            rooms = row['Rooms']
+            if rooms == 1:
+                return 75
+            elif rooms == 2:
+                return 100
+            else:
+                return 150
+        elif row['Type'] == 't':
+            rooms = row['Rooms']
+            if rooms == 1:
+                return 100
+            elif rooms == 2:
+                return 150
+            else:
+                return 200
+    return row['Landsize']
+
+df['Landsize'] = df.apply(impute_landsize, axis=1)
+
+# Drop remaining missing values
 df = df.dropna()
 
 #convert date to datetime

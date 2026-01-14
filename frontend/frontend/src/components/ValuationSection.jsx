@@ -22,6 +22,21 @@ export const ValuationSection = () => {
   const [filteredSuburbs, setFilteredSuburbs] = useState([]);
   const [suburbSupported, setSuburbSupported] = useState(true);
 
+  const [isLandsizeVisible, setIsLandsizeVisible] = useState(false);
+
+  const getDefaultLandsize = (type, rooms) => {
+    if (type === 'u') {
+      if (rooms == 1) return 75;
+      if (rooms == 2) return 100;
+      return 150;
+    } else if (type === 't') {
+      if (rooms == 1) return 100;
+      if (rooms == 2) return 150;
+      return 200;
+    }
+    return '';
+  };
+
   useEffect(() => {
     fetch("http://localhost:8000/suburbs")
       .then((res) => res.json())
@@ -46,6 +61,11 @@ export const ValuationSection = () => {
         [value === "h" ? "Type_h" : value === "u" ? "Type_u" : "Type_t"]: 1,
       }));
       setPropertyTypeSelected(true);
+      setIsLandsizeVisible(value === 'h');
+      if (value !== 'h' && formData.Rooms) {
+        const defaultLandsize = getDefaultLandsize(value, Number(formData.Rooms));
+        setFormData((prev) => ({ ...prev, Landsize: defaultLandsize }));
+      }
     } else if (name === "Suburb") {
       setFormData((prev) => ({ ...prev, Suburb: value }));
 
@@ -63,6 +83,11 @@ export const ValuationSection = () => {
         ...prev,
         [name]: newValue,
       }));
+      if (name === "Rooms" && (formData.Type_u === 1 || formData.Type_t === 1)) {
+        const type = formData.Type_u === 1 ? 'u' : 't';
+        const defaultLandsize = getDefaultLandsize(type, Number(newValue));
+        setFormData((prev) => ({ ...prev, Landsize: defaultLandsize }));
+      }
     }
   };
 
@@ -79,7 +104,8 @@ export const ValuationSection = () => {
     setPrediction(null);
 
     //Validate required fields
-    const requiredFields = ["Rooms", "Bathroom", "Car", "Landsize", "Suburb"];
+    const requiredFields = ["Rooms", "Bathroom", "Car", "Suburb"];
+    if (isLandsizeVisible) requiredFields.push("Landsize");
     const emptyFields = requiredFields.filter(
       (field) => formData[field] === "" || formData[field] === null
     );
@@ -105,11 +131,13 @@ export const ValuationSection = () => {
     }
 
     // Prepare data for API
+    const type = formData.Type_h === 1 ? 'h' : formData.Type_u === 1 ? 'u' : 't';
+    const landsize = isLandsizeVisible ? Number(formData.Landsize) : getDefaultLandsize(type, Number(formData.Rooms));
     const numericData = {
       Rooms: Number(formData.Rooms),
       Bathroom: Number(formData.Bathroom),
       Car: Number(formData.Car),
-      Landsize: Number(formData.Landsize),
+      Landsize: landsize,
       Type_h: formData.Type_h,
       Type_u: formData.Type_u,
       Type_t: formData.Type_t,
@@ -224,22 +252,24 @@ export const ValuationSection = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-foreground">
-                Land Size (sqm) *
-              </label>
-              <input
-                type="number"
-                name="Landsize"
-                value={formData.Landsize}
-                onChange={handleChange}
-                min="0"
-                step="0.1"
-                placeholder="Enter land size"
-                className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-              />
-            </div>
+            {isLandsizeVisible && (
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-foreground">
+                  Land Size (sqm) *
+                </label>
+                <input
+                  type="number"
+                  name="Landsize"
+                  value={formData.Landsize}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.1"
+                  placeholder="Enter land size"
+                  className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+            )}
 
             <div className="md:col-span-2 relative">
               <label className="block text-sm font-semibold mb-2 text-foreground">
