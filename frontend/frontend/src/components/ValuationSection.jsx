@@ -1,5 +1,10 @@
 import React, { useEffect , useState } from "react";
 
+const capitalizeFirstLetter = (str) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 export const ValuationSection = () => {
   const [formData, setFormData] = useState({
     Rooms: "",
@@ -67,7 +72,8 @@ export const ValuationSection = () => {
         setFormData((prev) => ({ ...prev, Landsize: defaultLandsize }));
       }
     } else if (name === "Suburb") {
-      setFormData((prev) => ({ ...prev, Suburb: value }));
+      const capitalizedValue = capitalizeFirstLetter(value);
+      setFormData((prev) => ({ ...prev, Suburb: capitalizedValue }));
 
       const matches = allSuburbs
         .filter((s) => s.toLowerCase().includes(value.toLowerCase()))
@@ -92,7 +98,8 @@ export const ValuationSection = () => {
   };
 
   const selectSuburb = (suburb) => {
-    setFormData((prev) => ({ ...prev, Suburb: suburb }));
+    const capitalizedSuburb = capitalizeFirstLetter(suburb);
+    setFormData((prev) => ({ ...prev, Suburb: capitalizedSuburb }));
     setFilteredSuburbs([]);
     setSuburbSupported(true);
   };
@@ -293,7 +300,7 @@ export const ValuationSection = () => {
                       onClick={() => selectSuburb(suburb)}
                       className="px-4 py-2 cursor-pointer hover:bg-muted"
                     >
-                      {suburb}
+                      {capitalizeFirstLetter(suburb)}
                     </li>
                   ))}
                 </ul>
