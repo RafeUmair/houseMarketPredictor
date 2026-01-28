@@ -28,6 +28,7 @@ export const ValuationSection = () => {
   const [suburbSupported, setSuburbSupported] = useState(true);
 
   const [isLandsizeVisible, setIsLandsizeVisible] = useState(false);
+  const [modelStats, setModelStats] = useState(null);
 
   const getDefaultLandsize = (type, rooms) => {
     if (type === 'u') {
@@ -50,6 +51,15 @@ export const ValuationSection = () => {
       })
       .catch(() => {
         setAllSuburbs([]);
+      });
+
+    fetch("http://localhost:8000/model-stats")
+      .then((res) => res.json())
+      .then((data) => {
+        setModelStats(data);
+      })
+      .catch(() => {
+        setModelStats(null);
       });
     }, []);
 
@@ -166,7 +176,7 @@ export const ValuationSection = () => {
       }
 
       const data = await response.json();
-      setPrediction(data.predicted_price);
+      setPrediction(data);
     } catch (err) {
       setError(
         "Failed to get prediction. Make sure the API server is running and all fields are filled correctly."
@@ -371,10 +381,19 @@ export const ValuationSection = () => {
               Estimated Property Value
             </h3>
             <p className="text-5xl font-black text-primary mb-2">
-              {formatPrice(prediction)}
+              {formatPrice(prediction.predicted_price)}
             </p>
+            <p className="text-sm text-foreground/60 mb-4">
+              Range: {formatPrice(prediction.price_low)} - {formatPrice(prediction.price_high)}
+            </p>
+            <div className="flex justify-center gap-6 mt-4 mb-2">
+              <div className="text-center">
+                <p className="text-lg font-semibold text-foreground">{prediction.confidence_pct}%</p>
+                <p className="text-xs text-foreground/60">Confidence</p>
+              </div>
+            </div>
             <p className="text-sm text-foreground/70">
-              This is an estimate based on the provided information
+              Based on {modelStats ? modelStats.training_samples.toLocaleString() : ''} Melbourne properties
             </p>
           </div>
         )}
