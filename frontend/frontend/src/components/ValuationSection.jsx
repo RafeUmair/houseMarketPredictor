@@ -29,6 +29,8 @@ export const ValuationSection = () => {
 
   const [isLandsizeVisible, setIsLandsizeVisible] = useState(false);
   const [modelStats, setModelStats] = useState(null);
+  const [suburbRange, setSuburbRange] = useState(null);
+  const [extrapolationWarning, setExtrapolationWarning] = useState(null);
 
   const getDefaultLandsize = (type, rooms) => {
     if (type === 'u') {
@@ -112,6 +114,18 @@ export const ValuationSection = () => {
     setFormData((prev) => ({ ...prev, Suburb: capitalizedSuburb }));
     setFilteredSuburbs([]);
     setSuburbSupported(true);
+
+    //Fetch suburb range for extrapolation warning
+    fetch(`http://localhost:8000/suburb-range/${suburb}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.found) {
+          setSuburbRange(data);
+        } else {
+          setSuburbRange(null);
+        }
+      })
+      .catch(() => setSuburbRange(null));
   };
 
   const handleSubmit = async (e) => {
@@ -145,6 +159,29 @@ export const ValuationSection = () => {
       setError("Please select a property type");
       setLoading(false);
       return;
+    }
+
+    //Validate landsize for houses
+    if (formData.Type_h === 1) {
+      const landsize = Number(formData.Landsize);
+      if (landsize < 50 || landsize > 1000) {
+        setError("Land size must be between 50 and 1000 sqm");
+        setLoading(false);
+        return;
+      }
+
+      //Check for extrapolation warning
+      if (suburbRange) {
+        if (landsize < suburbRange.landsize_min || landsize > suburbRange.landsize_max) {
+          setExtrapolationWarning(
+            `Land size ${landsize} sqm is outside the training data range for this suburb (${suburbRange.landsize_min}-${suburbRange.landsize_max} sqm). Prediction accuracy may be reduced.`
+          );
+        } else {
+          setExtrapolationWarning(null);
+        }
+      }
+    } else {
+      setExtrapolationWarning(null);
     }
 
     // Prepare data for API
@@ -392,6 +429,18 @@ export const ValuationSection = () => {
                 <p className="text-xs text-foreground/60">Confidence</p>
               </div>
             </div>
+            {extrapolationWarning && (
+              <div className="bg-amber-500/10 border border-amber-500/50 rounded-lg p-3 mt-4 mb-2">
+                <p className="text-sm text-amber-600">{extrapolationWarning}</p>
+              </div>
+            )}
+            {suburbRange && suburbRange.sample_count < 20 && (
+              <div className="bg-blue-500/10 border border-blue-500/50 rounded-lg p-3 mt-2 mb-2">
+                <p className="text-sm text-blue-600">
+                  Limited data: Only {suburbRange.sample_count} properties in training data for this suburb.
+                </p>
+              </div>
+            )}
             <p className="text-sm text-foreground/70">
               Based on {modelStats ? modelStats.training_samples.toLocaleString() : ''} Melbourne properties
             </p>

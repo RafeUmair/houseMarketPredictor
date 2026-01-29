@@ -12,7 +12,7 @@ df = pd.read_csv('data/melbourne_housing.csv')
 #Impute missing or zero landsize for units and townhouses, based on average sizes by number of rooms
 def impute_landsize(row):
     landsize = row['Landsize']
-    # Check for missing OR zero landsize
+    #Check for missing OR zero landsize
     if pd.isna(landsize) or landsize == 0:
         if row['Type'] == 'u':
             rooms = row['Rooms']
@@ -38,12 +38,16 @@ def impute_landsize(row):
 
 df['Landsize'] = df.apply(impute_landsize, axis=1)
 
-# Drop remaining missing values
+#Drop remaining missing values
 df = df.dropna()
 
-# Remove outliers that skew the model
-# Remove properties with unrealistic landsize (likely data errors)
-df = df[(df['Landsize'] > 0) & (df['Landsize'] < 10000)]
+#Remove outliers that skew the model
+#limit Houses to 50-1000 sqm removes acreages and data errors
+#Units/townhouses, landsize is auto calculated based on rooms
+df = df[
+    ((df['Type'] == 'h') & (df['Landsize'] >= 50) & (df['Landsize'] <= 1000)) |
+    (df['Type'].isin(['u', 't']))
+]
 
 #Remove extreme price outliers (top/bottom 1%)
 price_lower = df['Price'].quantile(0.01)
@@ -81,8 +85,6 @@ feature_columns = [
     'Bathroom',
     'Car',
     'Landsize',
-    'YearSold',
-    'YearsSinceSale',
     'Distance_to_CBD'
 ]
 

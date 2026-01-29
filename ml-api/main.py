@@ -36,6 +36,10 @@ suburb_distance_map = (
     .to_dict()
 )
 
+#Load suburb ranges for validation warnings
+with open('../ml/data/suburb_ranges.json', 'r') as f:
+    suburb_ranges = json.load(f)
+
 app = FastAPI()
 
 #Cors middleware
@@ -63,8 +67,6 @@ def predict_price(property: Property):
         "Bathroom": property.Bathroom,
         "Car": property.Car,
         "Landsize": property.Landsize,
-        "YearSold": 2026,
-        "YearsSinceSale": 0,
         "Distance_to_CBD": distance_to_cbd,
         "Type_h": property.Type_h,
         "Type_u": property.Type_u,
@@ -114,3 +116,16 @@ def get_model_stats():
         "mape": model_metrics["mape"],
         "training_samples": model_metrics["training_samples"]
     }
+
+@app.get("/suburb-range/{suburb}")
+def get_suburb_range(suburb: str):
+    suburb_key = suburb.lower().strip()
+    if suburb_key in suburb_ranges:
+        data = suburb_ranges[suburb_key]
+        return {
+            "found": True,
+            "landsize_min": data["landsize_min"],
+            "landsize_max": data["landsize_max"],
+            "sample_count": data["count"]
+        }
+    return {"found": False}
