@@ -1,7 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 export const HomeSection = () => {
+  const scrollToValuation = () => {
+    document.getElementById('valuation')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section
       id="home"
@@ -14,13 +17,13 @@ export const HomeSection = () => {
         Houser uses smart data analysis to give you an accurate estimate of your
         property's value in seconds. Fast, secure, reliable, and easy to use.
       </p>
-      <Link
-        to="#valuation"
+      <button
+        onClick={scrollToValuation}
         className="themed-button fade-up"
         style={{ animationDelay: '0.5s' }}
       >
         Get Valuation
-      </Link>
+      </button>
     </section>
   );
 };

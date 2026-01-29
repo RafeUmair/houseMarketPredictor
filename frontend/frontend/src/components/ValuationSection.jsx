@@ -161,25 +161,61 @@ export const ValuationSection = () => {
       return;
     }
 
-    //Validate landsize for houses
-    if (formData.Type_h === 1) {
-      const landsize = Number(formData.Landsize);
-      if (landsize < 50 || landsize > 1000) {
-        setError("Land size must be between 50 and 1000 sqm");
-        setLoading(false);
-        return;
+    //Build extrapolation warnings based on suburb training data
+    const warnings = [];
+
+    if (suburbRange) {
+      const rooms = Number(formData.Rooms);
+      const bathrooms = Number(formData.Bathroom);
+      const cars = Number(formData.Car);
+
+      //Check rooms
+      if (rooms < suburbRange.rooms_min || rooms > suburbRange.rooms_max) {
+        warnings.push(`Rooms (${rooms}) outside training range (${suburbRange.rooms_min}-${suburbRange.rooms_max})`);
       }
 
-      //Check for extrapolation warning
-      if (suburbRange) {
+      //Check bathrooms
+      if (bathrooms < suburbRange.bathroom_min || bathrooms > suburbRange.bathroom_max) {
+        warnings.push(`Bathrooms (${bathrooms}) outside training range (${suburbRange.bathroom_min}-${suburbRange.bathroom_max})`);
+      }
+
+      //Check car spaces
+      if (cars < suburbRange.car_min || cars > suburbRange.car_max) {
+        warnings.push(`Car spaces (${cars}) outside training range (${suburbRange.car_min}-${suburbRange.car_max})`);
+      }
+
+      //Check landsize for houses
+      if (formData.Type_h === 1) {
+        const landsize = Number(formData.Landsize);
+        if (landsize < 50 || landsize > 1000) {
+          setError("Land size must be between 50 and 1000 sqm");
+          setLoading(false);
+          return;
+        }
         if (landsize < suburbRange.landsize_min || landsize > suburbRange.landsize_max) {
-          setExtrapolationWarning(
-            `Land size ${landsize} sqm is outside the training data range for this suburb (${suburbRange.landsize_min}-${suburbRange.landsize_max} sqm). Prediction accuracy may be reduced.`
-          );
-        } else {
-          setExtrapolationWarning(null);
+          warnings.push(`Land size (${landsize} sqm) outside training range (${suburbRange.landsize_min}-${suburbRange.landsize_max} sqm)`);
         }
       }
+
+      //Check property type - block prediction if no data for units/townhouses
+      const typeCount = formData.Type_h === 1 ? suburbRange.house_count :
+                        formData.Type_u === 1 ? suburbRange.unit_count :
+                        suburbRange.townhouse_count;
+      const typeName = formData.Type_h === 1 ? "houses" :
+                       formData.Type_u === 1 ? "units" : "townhouses";
+
+      if (typeCount === 0 && formData.Type_h !== 1) {
+        //Block prediction for units/townhouses with no data
+        setError(`No ${typeName} in training data for ${formData.Suburb}. Unable to provide an accurate prediction.`);
+        setLoading(false);
+        return;
+      } else if (typeCount === 0) {
+        warnings.push(`No ${typeName} in training data for this suburb`);
+      }
+    }
+
+    if (warnings.length > 0) {
+      setExtrapolationWarning(warnings.join(". ") + ". Prediction accuracy may be reduced.");
     } else {
       setExtrapolationWarning(null);
     }
@@ -238,7 +274,7 @@ export const ValuationSection = () => {
     formData.Type_t === 1;
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
+    <section id="valuation" className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
       <div className="max-w-2xl w-full space-y-8">
         <div className="text-center mb-8 fade-up">
           <h2 className="text-4xl md:text-5xl font-black mb-4 home-title">
@@ -434,10 +470,10 @@ export const ValuationSection = () => {
                 <p className="text-sm text-amber-600">{extrapolationWarning}</p>
               </div>
             )}
-            {suburbRange && suburbRange.sample_count < 20 && (
+            {suburbRange && suburbRange.total_count < 20 && (
               <div className="bg-blue-500/10 border border-blue-500/50 rounded-lg p-3 mt-2 mb-2">
                 <p className="text-sm text-blue-600">
-                  Limited data: Only {suburbRange.sample_count} properties in training data for this suburb.
+                  Limited data: Only {suburbRange.total_count} properties in training data for this suburb.
                 </p>
               </div>
             )}

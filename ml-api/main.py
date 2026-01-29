@@ -126,6 +126,15 @@ def get_suburb_range(suburb: str):
             "found": True,
             "landsize_min": data["landsize_min"],
             "landsize_max": data["landsize_max"],
-            "sample_count": data["count"]
+            "house_count": data["house_count"],
+            "unit_count": data["unit_count"],
+            "townhouse_count": data["townhouse_count"],
+            "total_count": data["total_count"],
+            "rooms_min": data["rooms_min"],
+            "rooms_max": data["rooms_max"],
+            "bathroom_min": data["bathroom_min"],
+            "bathroom_max": data["bathroom_max"],
+            "car_min": data["car_min"],
+            "car_max": data["car_max"]
         }
     return {"found": False}
