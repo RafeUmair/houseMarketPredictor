@@ -5,7 +5,7 @@ const capitalizeFirstLetter = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-export const ValuationSection = () => {
+export const ValuationSection = ({ onValuationComplete }) => {
   const [formData, setFormData] = useState({
     Rooms: "",
     Bathroom: "",
@@ -250,6 +250,9 @@ export const ValuationSection = () => {
 
       const data = await response.json();
       setPrediction(data);
+      if (onValuationComplete) {
+        onValuationComplete(formData.Suburb);
+      }
     } catch (err) {
       setError(
         "Failed to get prediction. Make sure the API server is running and all fields are filled correctly."

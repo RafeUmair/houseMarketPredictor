@@ -36,9 +36,15 @@ suburb_distance_map = (
     .to_dict()
 )
 
-#Load suburb ranges for validation warnings
-with open('../ml/data/suburb_ranges.json', 'r') as f:
-    suburb_ranges = json.load(f)
+#Load suburb ranges for validation warnings (from CSV)
+suburb_ranges_df = pd.read_csv('../ml/data/suburb_ranges.csv')
+suburb_ranges_df['suburb'] = suburb_ranges_df['suburb'].str.lower().str.strip()
+suburb_ranges = suburb_ranges_df.set_index('suburb').to_dict('index')
+
+#Load suburb stats (from CSV)
+suburb_stats_df = pd.read_csv('../ml/data/suburb_stats.csv')
+suburb_stats_df['suburb'] = suburb_stats_df['suburb'].str.lower().str.strip()
+suburb_stats = suburb_stats_df.set_index('suburb').to_dict('index')
 
 app = FastAPI()
 
@@ -138,3 +144,17 @@ def get_suburb_range(suburb: str):
             "car_max": data["car_max"]
         }
     return {"found": False}
+
+@app.get("/suburb-stats/{suburb}")
+def get_suburb_stats(suburb: str):
+    suburb_key = suburb.lower().strip()
+    if suburb_key in suburb_stats:
+        data = suburb_stats[suburb_key]
+        # Convert NaN values to None for JSON
+        cleaned = {k: (None if pd.isna(v) else v) for k, v in data.items()}
+        return {"found": True, **cleaned}
+    return {"found": False}
+
+@app.get("/all-suburb-stats")
+def get_all_suburb_stats():
+    return suburb_stats

@@ -29,6 +29,9 @@ export const Navbar = () => {
           <a href="#valuation" className="hover:text-primary transition">
             Valuation
           </a>
+          <a href="#stats" className="hover:text-primary transition">
+            Suburb Stats
+          </a>
         </nav>
 
         {/* DarkMode Toggle*/}
