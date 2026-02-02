@@ -13,9 +13,12 @@ export const HomeSection = () => {
       <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4 fade-up home-title" style={{ animationDelay: '0.1s' }}>
         Track your property's value in real-time
       </h1>
-      <p className="text-lg md:text-xl text-foreground/70 mb-12 max-w-2xl fade-up" style={{ animationDelay: '0.3s' }}>
+      <p className="text-lg md:text-xl text-foreground/70 mb-8 max-w-2xl fade-up" style={{ animationDelay: '0.3s' }}>
         Houser uses smart data analysis to give you an accurate estimate of your
         property's value in seconds. Fast, secure, reliable, and easy to use.
+      </p>
+      <p className="text-sm text-foreground/50 mb-8 fade-up" style={{ animationDelay: '0.4s' }}>
+        Currently supports Melbourne suburbs only
       </p>
       <button
         onClick={scrollToValuation}

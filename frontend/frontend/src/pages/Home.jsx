@@ -5,6 +5,7 @@ import { HomeSection } from "../components/HomeSection";
 import { ValuationSection } from "../components/ValuationSection";
 import { SuburbStats } from "../components/SuburbStats";
 import { InteractiveMap } from "../components/InteractiveMap";
+import { Footer } from "../components/Footer";
 
 export const Home = () => {
   const [valuationSuburb, setValuationSuburb] = useState(null);
@@ -27,6 +28,7 @@ export const Home = () => {
         selectedSuburb={activeSuburb}
       />
       <SuburbStats triggeredSuburb={activeSuburb} />
+      <Footer />
     </GridBackground>
   );
 };
