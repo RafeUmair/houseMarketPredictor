@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_URL } from "../config";
 
 const capitalizeFirstLetter = (str) => {
   if (!str) return '';
@@ -23,7 +24,7 @@ export const SuburbStats = ({ triggeredSuburb }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:8000/suburbs")
+    fetch(`${API_URL}/suburbs`)
       .then((res) => res.json())
       .then((data) => {
         setAllSuburbs(data.suburbs);
@@ -60,7 +61,7 @@ export const SuburbStats = ({ triggeredSuburb }) => {
 
   const fetchStats = (suburb) => {
     setLoading(true);
-    fetch(`http://localhost:8000/suburb-stats/${suburb}`)
+    fetch(`${API_URL}/suburb-stats/${suburb}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.found) {

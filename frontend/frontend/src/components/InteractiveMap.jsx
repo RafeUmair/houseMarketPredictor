@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import { API_URL } from "../config";
 
 //Melbourne CBD coordinates
 const MELBOURNE_CENTER = [-37.8136, 144.9631];
@@ -259,7 +260,7 @@ export const InteractiveMap = ({ onSuburbSelect, selectedSuburb }) => {
 
   useEffect(() => {
     //Fetch suburb stats from API
-    fetch("http://localhost:8000/all-suburb-stats")
+    fetch(`${API_URL}/all-suburb-stats`)
       .then((res) => res.json())
       .then((data) => {
         if (data.suburbs) {
@@ -321,18 +322,110 @@ export const InteractiveMap = ({ onSuburbSelect, selectedSuburb }) => {
   };
 
   return (
-    <section id="map" className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
-      <div className="max-w-6xl w-full space-y-8">
-        <div className="text-center mb-8 fade-up">
-          <h2 className="text-4xl md:text-5xl font-black mb-4 home-title">
-            Melbourne Suburbs Map
-          </h2>
-          <p className="text-lg text-foreground/70">
-            Explore property prices across Melbourne suburbs
-          </p>
+    <>
+      {/*Fullscreen overlay*/}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-50 bg-background">
+          <button
+            onClick={toggleFullscreen}
+            className="absolute top-4 right-4 z-[1000] bg-card border rounded-lg px-4 py-2 text-sm font-medium hover:bg-muted transition flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="4 14 10 14 10 20"></polyline>
+              <polyline points="20 10 14 10 14 4"></polyline>
+              <line x1="14" y1="10" x2="21" y2="3"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+            Exit Fullscreen
+          </button>
+          <MapContainer
+            center={mapCenter}
+            zoom={mapZoom}
+            className="h-full w-full"
+            scrollWheelZoom={true}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <MapController center={mapCenter} zoom={mapZoom} />
+            {markers.map((marker) => (
+              <CircleMarker
+                key={marker.suburb}
+                center={marker.coords}
+                radius={10}
+                fillColor={marker.color}
+                color="#ffffff"
+                weight={2}
+                opacity={1}
+                fillOpacity={0.8}
+                eventHandlers={{
+                  click: () => handleMarkerClick(marker.suburb),
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <p className="font-bold text-base mb-2 capitalize">{marker.suburb}</p>
+                    <p><strong>Median Price:</strong> {formatPrice(marker.median_overall_price)}</p>
+                    <p><strong>Total Sales:</strong> {marker.total_sales}</p>
+                    <p><strong>Distance to CBD:</strong> {marker.distance_to_cbd} km</p>
+                  </div>
+                </Popup>
+              </CircleMarker>
+            ))}
+          </MapContainer>
+          {/*Fullscreen Legend*/}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000] bg-card/90 backdrop-blur border rounded-lg px-4 py-2 flex flex-wrap justify-center gap-4">
+            <span className="text-sm font-medium text-foreground">Median Price:</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#22c55e]"></div>
+              <span className="text-xs text-foreground/70">&lt; $800k</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#84cc16]"></div>
+              <span className="text-xs text-foreground/70">$800k-$1.2M</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#eab308]"></div>
+              <span className="text-xs text-foreground/70">$1.2M-$1.6M</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#f97316]"></div>
+              <span className="text-xs text-foreground/70">$1.6M-$2M</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#ef4444]"></div>
+              <span className="text-xs text-foreground/70">&gt; $2M</span>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div className="bg-card border rounded-xl overflow-hidden fade-up" style={{ animationDelay: "0.2s" }}>
+      <section id="map" className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
+        <div className="max-w-6xl w-full space-y-8">
+          <div className="text-center mb-8 fade-up">
+            <h2 className="text-4xl md:text-5xl font-black mb-4 home-title">
+              Melbourne Suburbs Map
+            </h2>
+            <p className="text-lg text-foreground/70">
+              Explore property prices across Melbourne suburbs
+            </p>
+          </div>
+
+          <div className="bg-card border rounded-xl overflow-hidden fade-up relative" style={{ animationDelay: "0.2s" }}>
+            {/*Fullscreen button*/}
+            <button
+              onClick={toggleFullscreen}
+              className="absolute top-3 right-3 z-[1000] bg-card/90 backdrop-blur border rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted transition flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+              </svg>
+              Fullscreen
+            </button>
           {loading ? (
             <div className="h-[500px] flex items-center justify-center">
               <p className="text-foreground/70">Loading map...</p>
@@ -385,7 +478,8 @@ export const InteractiveMap = ({ onSuburbSelect, selectedSuburb }) => {
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap justify-center gap-4 fade-up" style={{ animationDelay: "0.3s" }}>
+        <div className="flex flex-wrap justify-center items-center gap-4 fade-up" style={{ animationDelay: "0.3s" }}>
+          <span className="text-sm font-medium text-foreground">Median Price:</span>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-[#22c55e]"></div>
             <span className="text-sm text-foreground/70">&lt; $800k</span>
@@ -409,5 +503,6 @@ export const InteractiveMap = ({ onSuburbSelect, selectedSuburb }) => {
         </div>
       </div>
     </section>
+    </>
   );
 };

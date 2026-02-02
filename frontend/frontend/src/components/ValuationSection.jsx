@@ -1,4 +1,5 @@
 import React, { useEffect , useState } from "react";
+import { API_URL } from "../config";
 
 const capitalizeFirstLetter = (str) => {
   if (!str) return '';
@@ -46,7 +47,7 @@ export const ValuationSection = ({ onValuationComplete }) => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8000/suburbs")
+    fetch(`${API_URL}/suburbs`)
       .then((res) => res.json())
       .then((data) => {
         setAllSuburbs(data.suburbs);
@@ -55,7 +56,7 @@ export const ValuationSection = ({ onValuationComplete }) => {
         setAllSuburbs([]);
       });
 
-    fetch("http://localhost:8000/model-stats")
+    fetch(`${API_URL}/model-stats`)
       .then((res) => res.json())
       .then((data) => {
         setModelStats(data);
@@ -116,7 +117,7 @@ export const ValuationSection = ({ onValuationComplete }) => {
     setSuburbSupported(true);
 
     //Fetch suburb range for extrapolation warning
-    fetch(`http://localhost:8000/suburb-range/${suburb}`)
+    fetch(`${API_URL}/suburb-range/${suburb}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.found) {
@@ -235,7 +236,7 @@ export const ValuationSection = ({ onValuationComplete }) => {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/predictPrice", {
+      const response = await fetch(`${API_URL}/predictPrice`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(numericData),
