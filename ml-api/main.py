@@ -157,4 +157,8 @@ def get_suburb_stats(suburb: str):
 
 @app.get("/all-suburb-stats")
 def get_all_suburb_stats():
-    return suburb_stats
+    suburbs_list = []
+    for suburb_name, data in suburb_stats.items():
+        cleaned = {k: (None if pd.isna(v) else v) for k, v in data.items()}
+        suburbs_list.append({"suburb": suburb_name, **cleaned})
+    return {"suburbs": suburbs_list}

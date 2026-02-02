@@ -29,6 +29,9 @@ export const Navbar = () => {
           <a href="#valuation" className="hover:text-primary transition">
             Valuation
           </a>
+          <a href="#map" className="hover:text-primary transition">
+            Map
+          </a>
           <a href="#stats" className="hover:text-primary transition">
             Suburb Stats
           </a>
