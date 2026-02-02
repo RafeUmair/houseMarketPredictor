@@ -2,7 +2,8 @@
 
 Melbourne property price predictor using machine learning model.
 
-**Live:** [houser-frontend.vercel.app](https://houser-frontend.vercel.app) | **API:** [housemarketpredictor.onrender.com](https://housemarketpredictor.onrender.com)
+**Live:** [houser-frontend.vercel.app](https://houser-frontend.vercel.app) 
+**API:** [housemarketpredictor.onrender.com](https://housemarketpredictor.onrender.com)
 
 ## What it does
 
@@ -19,6 +20,7 @@ Melbourne property price predictor using machine learning model.
 
 Backend:
 ```bash
+source venv/bin/activate
 cd ml-api
 pip install -r requirements.txt
 uvicorn main:app --reload
@@ -31,8 +33,3 @@ npm install
 npm run dev
 ```
 
-## Deploy
-
-- Backend on Render (free tier)
-- Frontend on Vercel
-- Set `VITE_API_URL` env var to your Render URL
