@@ -6,6 +6,7 @@ import { ValuationSection } from "../components/ValuationSection";
 import { SuburbStats } from "../components/SuburbStats";
 import { InteractiveMap } from "../components/InteractiveMap";
 import { Footer } from "../components/Footer";
+import { ApiLoadingOverlay } from "../components/ApiLoadingOverlay";
 
 export const Home = () => {
   const [valuationSuburb, setValuationSuburb] = useState(null);
@@ -20,6 +21,7 @@ export const Home = () => {
 
   return (
     <GridBackground className="min-h-screen">
+      <ApiLoadingOverlay />
       <Navbar />
       <HomeSection />
       <ValuationSection onValuationComplete={setValuationSuburb} />
