@@ -2,7 +2,7 @@
 
 Melbourne property price predictor using machine learning model.
 
-**Live:** [houser-frontend.vercel.app](https://houser-frontend.vercel.app) 
+**Live:** [houser-frontend.vercel.app](https://house-market-predictor.vercel.app/) 
 **API:** [housemarketpredictor.onrender.com](https://housemarketpredictor.onrender.com)
 
 ## What it does
