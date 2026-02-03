@@ -18,6 +18,13 @@ Melbourne property price predictor using machine learning model.
 
 ## Run locally
 
+Train model and generate suburb data:
+```bash
+cd ml
+python train_model.py
+python generate_suburb_data.py
+```
+
 Backend:
 ```bash
 source venv/bin/activate
