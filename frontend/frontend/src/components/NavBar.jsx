@@ -5,11 +5,11 @@ import { DarkModeToggle } from "./DarkModeToggle";
 export const Navbar = () => {
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-background border-b">
-      <div className="container h-14 flex items-center">
+      <div className="w-full px-6 h-14 flex items-center justify-center relative">
         {/* House Logo */}
         <Link
           to="/"
-          className="flex items-center gap-2 text-lg font-semibold tracking-tight group"
+          className="absolute left-4 flex items-center gap-2 text-lg font-semibold tracking-tight group"
         >
           <img
             src={houseLogo}
@@ -22,7 +22,7 @@ export const Navbar = () => {
         </Link>
 
         {/*Central Navigation */}
-        <nav className="hidden md:flex items-center gap-6 text-sm text-foreground flex-1 justify-center">
+        <nav className="hidden md:flex items-center gap-6 text-sm text-foreground">
           <a href="#home" className="hover:text-primary transition">
             Home
           </a>
