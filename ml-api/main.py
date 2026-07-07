@@ -36,6 +36,12 @@ suburb_distance_map = (
     .to_dict()
 )
 
+#Load suburb price index (smoothed target encoding computed at training time)
+with open('../ml/model/suburb_price_index.json', 'r') as f:
+    suburb_price_index_data = json.load(f)
+suburb_price_index = suburb_price_index_data["suburbs"]
+global_mean_price = suburb_price_index_data["global_mean"]
+
 #Load suburb ranges for validation warnings (from CSV)
 suburb_ranges_df = pd.read_csv('../ml/data/suburb_ranges.csv')
 suburb_ranges_df['suburb'] = suburb_ranges_df['suburb'].str.lower().str.strip()
@@ -67,6 +73,7 @@ def predict_price(property: Property):
 
     suburb_key = property.Suburb.lower().strip()
     distance_to_cbd = suburb_distance_map.get(suburb_key)
+    suburb_price_level = suburb_price_index.get(suburb_key, global_mean_price)
 
     data = pd.DataFrame([{
         "Rooms": property.Rooms,
@@ -76,7 +83,8 @@ def predict_price(property: Property):
         "Distance_to_CBD": distance_to_cbd,
         "Type_h": property.Type_h,
         "Type_u": property.Type_u,
-        "Type_t": property.Type_t
+        "Type_t": property.Type_t,
+        "Suburb_Price_Index": suburb_price_level
     }])
     
     #Ensure all columns are present

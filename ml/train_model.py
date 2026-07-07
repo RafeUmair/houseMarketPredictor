@@ -76,6 +76,9 @@ df['Price_Adjusted'] = df['Price'] * ((1 + annual_growth_rate) ** df['YearsSince
 #distance to cbd
 df['Distance_to_CBD'] = df['Distance']
 
+#normalize suburb names to match the API's lookup convention
+df['Suburb'] = df['Suburb'].str.lower().str.strip()
+
 #support for house type
 df = pd.get_dummies(df, columns=['Type'], drop_first=True)
 
@@ -92,14 +95,44 @@ feature_columns = [
 type_columns = [col for col in df.columns if col.startswith('Type_')]
 feature_columns += type_columns
 
-#define input and target variables
-X = df[feature_columns]
+#define input and target variables (keep Suburb along for the ride so it survives the split)
+X = df[feature_columns + ['Suburb']]
 y = df['Price_Adjusted']
 
 #split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
+
+#Suburb is a huge price signal on its own (two suburbs at the same distance from
+#the CBD can differ in price by 3x) but the model had no way to see it - only a
+#single Distance_to_CBD number. Encode it as a smoothed target mean, fit on the
+#training split only so the test set stays a genuine holdout.
+global_mean_price = y_train.mean()
+suburb_stats_train = y_train.groupby(X_train['Suburb']).agg(['mean', 'count'])
+
+#shrink small-sample suburbs toward the global mean so a suburb with 1-2 sales
+#doesn't get treated as a confident price signal
+smoothing = 10
+suburb_price_index = (
+    (suburb_stats_train['mean'] * suburb_stats_train['count'] + global_mean_price * smoothing)
+    / (suburb_stats_train['count'] + smoothing)
+).to_dict()
+
+X_train = X_train.copy()
+X_test = X_test.copy()
+X_train['Suburb_Price_Index'] = X_train['Suburb'].map(suburb_price_index)
+X_test['Suburb_Price_Index'] = X_test['Suburb'].map(suburb_price_index).fillna(global_mean_price)
+X_train = X_train.drop(columns=['Suburb'])
+X_test = X_test.drop(columns=['Suburb'])
+feature_columns += ['Suburb_Price_Index']
+
+#save the suburb price index for the API to use at inference time
+with open('model/suburb_price_index.json', 'w') as f:
+    json.dump({
+        "suburbs": {k: round(v, 0) for k, v in suburb_price_index.items()},
+        "global_mean": round(global_mean_price, 0)
+    }, f)
 
 #define hyperparameter grid
 param_grid = {
